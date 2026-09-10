@@ -38,10 +38,10 @@ module BACommunity
           preferences_key: 'BACommunity_MonsieurBezier_Chamfer',
           scrollable:      false,
           resizable:       true,
-          width:           420,
-          height:          430,
-          min_width:       360,
-          min_height:      380,
+          width:           500,
+          height:          510,
+          min_width:       460,
+          min_height:      480,
           style:           UI::HtmlDialog::STYLE_DIALOG
         )
         @dialog.set_file(HTML_FILE)
@@ -52,6 +52,7 @@ module BACommunity
 
       def self.attach(dialog)
         dialog.add_action_callback('ready') { |_ctx| push }
+        dialog.add_action_callback('close') { |_ctx| dialog.close }
         dialog.add_action_callback('refresh') { |_ctx| push }
         dialog.add_action_callback('preview') do |_ctx, size, segments, mode|
           run_preview(size.to_f, segments.to_i, mode.to_s.to_sym)
@@ -152,7 +153,8 @@ module BACommunity
     # план, поэтому его можно гонять сколько угодно и без отмены.
     class ChamferPreview
 
-      COLOR = Sketchup::Color.new(30, 90, 200)
+      # Тот же изумруд, что в панели: инструмент узнаётся по цвету.
+      COLOR = Sketchup::Color.new(63, 224, 160)
 
       def self.start(lines)
         Sketchup.active_model.select_tool(new(lines))

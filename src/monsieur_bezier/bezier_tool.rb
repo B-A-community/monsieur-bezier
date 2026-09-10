@@ -27,7 +27,7 @@ module BACommunity
     #   число в поле ввода — сегментов на пролёт.
     class BezierTool
 
-      CURVE_COLOR  = Sketchup::Color.new(30, 90, 200)
+      CURVE_COLOR  = Sketchup::Color.new(63, 224, 160)
       HANDLE_COLOR = Sketchup::Color.new(180, 60, 60)
       ANCHOR_SIZE  = 6
       CLOSE_PIXELS = 10

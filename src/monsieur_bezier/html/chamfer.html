@@ -4,18 +4,26 @@
 <meta charset="utf-8">
 <title>Фаска и скругление</title>
 <style>
-  /* Палитра та же, что у area counter: плагины должны выглядеть роднёй. */
+  /* Тёмная панель с изумрудным акцентом — по утверждённому макету.
+     Зелёный несёт смысл и потому дозирован: число рёбер в выделении,
+     активный режим, подсвеченное ребро на картинке, успех и главная
+     кнопка. Всё остальное — оттенки графита. */
   :root{
-    --bg-1:#6E767F;
-    --bg-2:#555D66;
-    --bg-3:#3C434B;
-    --card:rgba(255,255,255,.10);
-    --card-line:rgba(255,255,255,.15);
-    --field:rgba(18,22,26,.32);
-    --text:#EDF0F2;
-    --muted:#A6AEB6;
-    --dim:#828C95;
-    --mint:#ADE3C6;
+    --bg:#212529;
+    --card:#282D31;
+    --card-line:rgba(255,255,255,.07);
+    --field:#20252A;
+    --field-line:rgba(255,255,255,.11);
+
+    --text:#E9EBED;
+    --muted:#9AA1A8;
+    --dim:#6E767D;
+
+    --mint:#3FE0A0;
+    --mint-wash:rgba(63,224,160,.10);
+    --mint-line:rgba(63,224,160,.42);
+    --on-mint:#0C2419;
+
     --amber:#E2A860;
   }
 
@@ -24,105 +32,187 @@
   body{
     margin:0; overflow:hidden;
     font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    font-weight:300; color:var(--text); font-size:13px;
-    background:
-      radial-gradient(120% 90% at 12% 0%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 55%),
-      linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+    color:var(--text); font-size:13.5px; background:var(--bg);
   }
+  svg{display:block; flex:none;}
 
-  .app{display:flex; flex-direction:column; height:100vh; padding:18px 20px 16px; gap:14px;}
+  .app{display:flex; flex-direction:column; height:100vh; padding:18px 20px; gap:12px;}
 
-  h1{
-    margin:0; font:300 15px/1.2 'Segoe UI',sans-serif;
-    letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+  /* --- шапка ------------------------------------------------------------- */
+  .head{display:flex; align-items:flex-start; gap:12px;}
+  .head .mark{margin-top:2px;}
+  .head h1{
+    margin:0; font:600 17px/1.15 'Segoe UI',sans-serif;
+    letter-spacing:.03em; text-transform:uppercase;
   }
-
-  .card{
-    background:var(--card); border:1px solid var(--card-line);
-    border-radius:6px; padding:14px 16px;
+  .head p{margin:3px 0 0; color:var(--muted); font-size:12.5px;}
+  .head .grow{flex:1 1 auto; min-width:0;}
+  .close{
+    flex:none; width:26px; height:26px; padding:0; margin:0;
+    background:none; border:0; border-radius:6px; color:var(--dim);
   }
+  .close:hover{background:rgba(255,255,255,.07); color:var(--text);}
 
-  .sel{display:flex; align-items:baseline; justify-content:space-between; gap:12px;}
-  .sel b{font-weight:400; font-size:22px; color:var(--mint);}
-  .sel span{color:var(--dim);}
-  .sel button{margin:0;}
+  /* --- карточки ---------------------------------------------------------- */
+  .card{background:var(--card); border:1px solid var(--card-line); border-radius:12px; padding:14px 16px;}
+  .card.pick{background:var(--mint-wash); border-color:var(--mint-line);}
 
-  .row{display:flex; align-items:center; gap:10px; margin-top:12px;}
+  .pick{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .pick .n{display:flex; align-items:baseline; gap:9px; min-width:0;}
+  .pick b{font:600 30px/1 'Segoe UI',sans-serif; color:var(--mint);}
+  .pick span{color:var(--muted); font-size:14px;}
+
+  /* --- поля -------------------------------------------------------------- */
+  .body{display:flex; gap:14px; align-items:flex-start;}
+  .fields{flex:1 1 auto; min-width:0;}
+
+  .row{display:flex; align-items:center; gap:12px; margin-top:12px;}
   .row:first-child{margin-top:0;}
-  .row label{flex:0 0 116px; color:var(--muted);}
+  .row label{flex:0 0 92px; color:var(--muted);}
 
   input[type=number]{
-    width:96px; padding:6px 8px;
+    width:86px; padding:8px 10px;
     background:var(--field); color:var(--text);
-    border:1px solid var(--card-line); border-radius:4px;
-    font:300 13px 'Segoe UI',sans-serif;
+    border:1px solid var(--field-line); border-radius:8px;
+    font:400 14px 'Segoe UI',sans-serif;
   }
-  input[type=number]:focus{outline:1px solid var(--mint); outline-offset:1px;}
-
+  input[type=number]:focus{outline:none; border-color:var(--mint-line);}
   .unit{color:var(--dim);}
 
-  /* Переключатель режима: два прижатых друг к другу сегмента. */
-  .seg{display:flex; border:1px solid var(--card-line); border-radius:4px; overflow:hidden;}
+  /* Переключатель режима: два прижатых сегмента, активный — изумрудный. */
+  .seg{display:flex; border:1px solid var(--field-line); border-radius:8px; background:var(--field);}
   .seg button{
-    border:0; margin:0; border-radius:0; padding:6px 12px;
-    background:transparent; color:var(--muted);
+    margin:0; border:1px solid transparent; border-radius:7px;
+    padding:7px 16px; background:transparent; color:var(--muted); font-size:13.5px;
   }
-  .seg button.on{background:rgba(173,227,198,.16); color:var(--mint);}
+  .seg button:hover{color:var(--text);}
+  .seg button.on{background:rgba(63,224,160,.13); border-color:var(--mint-line); color:var(--mint);}
 
-  .hint{margin-top:10px; color:var(--dim); line-height:1.45;}
+  .hint{display:flex; align-items:flex-start; gap:8px; margin-top:14px; color:var(--dim); line-height:1.45;}
+  .hint svg{margin-top:1px;}
 
+  /* --- строка состояния -------------------------------------------------- */
+  .note{display:flex; align-items:flex-start; gap:9px; min-height:38px; color:var(--muted); line-height:1.45;}
+  .note svg{margin-top:2px;}
+  .note.ok{color:var(--mint);}
+  .note.warn{color:var(--amber);}
+
+  /* --- кнопки ------------------------------------------------------------ */
   button{
-    padding:7px 14px; cursor:pointer;
-    background:rgba(255,255,255,.08); color:var(--text);
-    border:1px solid var(--card-line); border-radius:4px;
-    font:300 13px 'Segoe UI',sans-serif;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    padding:11px 16px; cursor:pointer;
+    background:var(--card); color:var(--text);
+    border:1px solid var(--field-line); border-radius:10px;
+    font:400 14px 'Segoe UI',sans-serif;
   }
-  button:hover{background:rgba(255,255,255,.14);}
-  button.primary{background:rgba(173,227,198,.18); border-color:rgba(173,227,198,.40); color:var(--mint);}
-  button.primary:hover{background:rgba(173,227,198,.28);}
+  button:hover{background:#31373C;}
 
   .actions{display:flex; gap:10px; margin-top:auto;}
   .actions button{flex:1 1 auto;}
-
-  .note{min-height:34px; color:var(--muted); line-height:1.45;}
-  .note.warn{color:var(--amber);}
-  .note.ok{color:var(--mint);}
+  .actions .primary{background:var(--mint); border-color:var(--mint); color:var(--on-mint); font-weight:600;}
+  .actions .primary:hover{background:#54EBAE;}
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>Фаска и скругление</h1>
 
-  <div class="card sel">
-    <div><b id="count">0</b> <span>рёбер в выделении</span></div>
-    <button id="refresh">Обновить</button>
+  <div class="head">
+    <span class="mark">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+        <path d="M15 14.8 L26 9 v12 L15 26.8 Z" fill="rgba(255,255,255,.10)"/>
+        <path d="M15 3.2 L26 9 v12 L15 26.8 L4 21 V9 Z" stroke="#3FE0A0" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M4 9 L15 14.8 L26 9" stroke="#3FE0A0" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M15 14.8 V26.8" stroke="#3FE0A0" stroke-width="1.6"/>
+      </svg>
+    </span>
+    <div class="grow">
+      <h1>Фаска и скругление</h1>
+      <p>Создайте новые грани, скругляя или срезая рёбра</p>
+    </div>
+    <button class="close" id="close" title="Закрыть" aria-label="Закрыть">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3.5 3.5 l9 9 M12.5 3.5 l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
   </div>
 
-  <div class="card">
-    <div class="row">
-      <label for="size">Размер</label>
-      <input type="number" id="size" min="0.1" step="1" value="20">
-      <span class="unit" id="unit">мм</span>
-    </div>
-    <div class="row">
-      <label>Считать как</label>
-      <div class="seg">
-        <button id="mode-offset" class="on">катет</button>
-        <button id="mode-radius">радиус</button>
+  <div class="card pick">
+    <div class="n"><b id="count">0</b> <span>рёбер в выделении</span></div>
+    <button id="refresh">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M13.5 8a5.5 5.5 0 1 1-1.7-3.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M13.3 2.2 v3.1 h-3.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Обновить
+    </button>
+  </div>
+
+  <div class="card body">
+    <div class="fields">
+      <div class="row">
+        <label for="size">Размер</label>
+        <input type="number" id="size" min="0.1" step="1" value="20">
+        <span class="unit" id="unit">мм</span>
+      </div>
+      <div class="row">
+        <label>Считать как</label>
+        <div class="seg">
+          <button id="mode-offset" class="on">катет</button>
+          <button id="mode-radius">радиус</button>
+        </div>
+      </div>
+      <div class="row">
+        <label for="segments">Сегментов</label>
+        <input type="number" id="segments" min="1" max="200" step="1" value="8">
+      </div>
+      <div class="hint">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M8 7.2 v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="8" cy="4.9" r=".85" fill="currentColor"/>
+        </svg>
+        <span id="hint"></span>
       </div>
     </div>
-    <div class="row">
-      <label for="segments">Сегментов</label>
-      <input type="number" id="segments" min="1" max="200" step="1" value="1">
-    </div>
-    <div class="hint" id="hint"></div>
+
+    <!-- Куб с уже срезанным передним ребром: изумрудом залита та самая новая
+         грань, которую делает инструмент. Ближнее вертикальное ребро заменено
+         полосой, верхняя грань из-за этого пятиугольная — ровно то, что
+         происходит с геометрией на самом деле. -->
+    <svg width="112" height="118" viewBox="0 0 120 124" fill="none" aria-hidden="true">
+      <path d="M60 14 L104 39 L67.8 59.6 L52.2 59.6 L16 39 Z" fill="#8F979E"/>
+      <path d="M16 39 L52.2 59.6 V105.6 L16 85 Z" fill="#5C646B"/>
+      <path d="M104 39 L67.8 59.6 V105.6 L104 85 Z" fill="#464D53"/>
+      <path d="M52.2 59.6 H67.8 V105.6 H52.2 Z" fill="#3FE0A0"/>
+      <path d="M60 14 L104 39 L67.8 59.6 L52.2 59.6 L16 39 Z" stroke="rgba(255,255,255,.22)" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M16 39 V85 L52.2 105.6 M67.8 105.6 L104 85 V39" stroke="rgba(255,255,255,.14)" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M52.2 59.6 V105.6 H67.8 V59.6" stroke="#2AA97A" stroke-width="1.2" stroke-linejoin="round"/>
+    </svg>
   </div>
 
-  <div class="note" id="note">Выделите рёбра — или сразу группу целиком.</div>
+  <div class="note" id="note">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" id="note-icon" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M8 7.2 v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="8" cy="4.9" r=".85" fill="currentColor"/>
+    </svg>
+    <span id="note-text">Выделите рёбра — или сразу группу целиком.</span>
+  </div>
 
   <div class="actions">
-    <button id="preview">Показать</button>
-    <button id="apply" class="primary">Применить</button>
+    <button id="preview">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M1.4 9s2.8-5 7.6-5 7.6 5 7.6 5-2.8 5-7.6 5S1.4 9 1.4 9Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="9" cy="9" r="2.1" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      Показать
+    </button>
+    <button id="apply" class="primary">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M3.4 9.4 L7 13 L14.6 5.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Применить
+    </button>
   </div>
 </div>
 
@@ -130,6 +220,18 @@
 (function () {
   var app = {};
   var mode = 'offset';
+
+  // Иконка строки состояния меняется вместе со смыслом сообщения.
+  var ICON = {
+    info: '<circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.3"/>' +
+          '<path d="M8 7.2 v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' +
+          '<circle cx="8" cy="4.9" r=".85" fill="currentColor"/>',
+    ok:   '<circle cx="8" cy="8" r="7" fill="currentColor"/>' +
+          '<path d="M4.8 8.2 L7 10.4 L11.3 5.9" stroke="#0C2419" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    warn: '<path d="M8 1.8 L15 14 H1 Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>' +
+          '<path d="M8 6.2 v3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' +
+          '<circle cx="8" cy="11.8" r=".85" fill="currentColor"/>'
+  };
 
   function $(id) { return document.getElementById(id); }
   function call(name) {
@@ -160,14 +262,16 @@
   };
 
   app.say = function (text, kind) {
-    var note = $('note');
-    note.textContent = text;
-    note.className = 'note' + (kind && kind !== 'info' ? ' ' + kind : '');
+    var key = kind === 'ok' ? 'ok' : (kind === 'warn' ? 'warn' : 'info');
+    $('note-text').textContent = text;
+    $('note').className = 'note' + (key === 'info' ? '' : ' ' + key);
+    $('note-icon').innerHTML = ICON[key];
   };
 
   $('refresh').onclick = function () { call('refresh'); };
   $('preview').onclick = function () { params('preview'); };
   $('apply').onclick = function () { params('apply'); };
+  $('close').onclick = function () { call('close'); };
   $('mode-offset').onclick = function () { setMode('offset'); };
   $('mode-radius').onclick = function () { setMode('radius'); };
   $('segments').oninput = hint;
