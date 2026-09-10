@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Фаска и скругление</title>
+<style>
+  /* Палитра та же, что у area counter: плагины должны выглядеть роднёй. */
+  :root{
+    --bg-1:#6E767F;
+    --bg-2:#555D66;
+    --bg-3:#3C434B;
+    --card:rgba(255,255,255,.10);
+    --card-line:rgba(255,255,255,.15);
+    --field:rgba(18,22,26,.32);
+    --text:#EDF0F2;
+    --muted:#A6AEB6;
+    --dim:#828C95;
+    --mint:#ADE3C6;
+    --amber:#E2A860;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; overflow:hidden;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    font-weight:300; color:var(--text); font-size:13px;
+    background:
+      radial-gradient(120% 90% at 12% 0%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 55%),
+      linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+  }
+
+  .app{display:flex; flex-direction:column; height:100vh; padding:18px 20px 16px; gap:14px;}
+
+  h1{
+    margin:0; font:300 15px/1.2 'Segoe UI',sans-serif;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+  }
+
+  .card{
+    background:var(--card); border:1px solid var(--card-line);
+    border-radius:6px; padding:14px 16px;
+  }
+
+  .sel{display:flex; align-items:baseline; justify-content:space-between; gap:12px;}
+  .sel b{font-weight:400; font-size:22px; color:var(--mint);}
+  .sel span{color:var(--dim);}
+  .sel button{margin:0;}
+
+  .row{display:flex; align-items:center; gap:10px; margin-top:12px;}
+  .row:first-child{margin-top:0;}
+  .row label{flex:0 0 116px; color:var(--muted);}
+
+  input[type=number]{
+    width:96px; padding:6px 8px;
+    background:var(--field); color:var(--text);
+    border:1px solid var(--card-line); border-radius:4px;
+    font:300 13px 'Segoe UI',sans-serif;
+  }
+  input[type=number]:focus{outline:1px solid var(--mint); outline-offset:1px;}
+
+  .unit{color:var(--dim);}
+
+  /* Переключатель режима: два прижатых друг к другу сегмента. */
+  .seg{display:flex; border:1px solid var(--card-line); border-radius:4px; overflow:hidden;}
+  .seg button{
+    border:0; margin:0; border-radius:0; padding:6px 12px;
+    background:transparent; color:var(--muted);
+  }
+  .seg button.on{background:rgba(173,227,198,.16); color:var(--mint);}
+
+  .hint{margin-top:10px; color:var(--dim); line-height:1.45;}
+
+  button{
+    padding:7px 14px; cursor:pointer;
+    background:rgba(255,255,255,.08); color:var(--text);
+    border:1px solid var(--card-line); border-radius:4px;
+    font:300 13px 'Segoe UI',sans-serif;
+  }
+  button:hover{background:rgba(255,255,255,.14);}
+  button.primary{background:rgba(173,227,198,.18); border-color:rgba(173,227,198,.40); color:var(--mint);}
+  button.primary:hover{background:rgba(173,227,198,.28);}
+
+  .actions{display:flex; gap:10px; margin-top:auto;}
+  .actions button{flex:1 1 auto;}
+
+  .note{min-height:34px; color:var(--muted); line-height:1.45;}
+  .note.warn{color:var(--amber);}
+  .note.ok{color:var(--mint);}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Фаска и скругление</h1>
+
+  <div class="card sel">
+    <div><b id="count">0</b> <span>рёбер в выделении</span></div>
+    <button id="refresh">Обновить</button>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label for="size">Размер</label>
+      <input type="number" id="size" min="0.1" step="1" value="20">
+      <span class="unit" id="unit">мм</span>
+    </div>
+    <div class="row">
+      <label>Считать как</label>
+      <div class="seg">
+        <button id="mode-offset" class="on">катет</button>
+        <button id="mode-radius">радиус</button>
+      </div>
+    </div>
+    <div class="row">
+      <label for="segments">Сегментов</label>
+      <input type="number" id="segments" min="1" max="200" step="1" value="1">
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div class="note" id="note">Выделите рёбра — или сразу группу целиком.</div>
+
+  <div class="actions">
+    <button id="preview">Показать</button>
+    <button id="apply" class="primary">Применить</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var app = {};
+  var mode = 'offset';
+
+  function $(id) { return document.getElementById(id); }
+  function call(name) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if (window.sketchup && sketchup[name]) { sketchup[name].apply(sketchup, args); }
+  }
+
+  function hint() {
+    var n = parseInt($('segments').value, 10) || 1;
+    $('hint').textContent = n <= 1
+      ? 'Один сегмент — прямая фаска.'
+      : n + ' сегментов — скругление; чем больше, тем глаже и тем тяжелее модель.';
+  }
+
+  function setMode(next) {
+    mode = next;
+    $('mode-offset').className = next === 'offset' ? 'on' : '';
+    $('mode-radius').className = next === 'radius' ? 'on' : '';
+  }
+
+  function params(name) {
+    call(name, parseFloat($('size').value), parseInt($('segments').value, 10), mode);
+  }
+
+  app.state = function (data) {
+    $('count').textContent = data.edges;
+    $('unit').textContent = data.units;
+  };
+
+  app.say = function (text, kind) {
+    var note = $('note');
+    note.textContent = text;
+    note.className = 'note' + (kind && kind !== 'info' ? ' ' + kind : '');
+  };
+
+  $('refresh').onclick = function () { call('refresh'); };
+  $('preview').onclick = function () { params('preview'); };
+  $('apply').onclick = function () { params('apply'); };
+  $('mode-offset').onclick = function () { setMode('offset'); };
+  $('mode-radius').onclick = function () { setMode('radius'); };
+  $('segments').oninput = hint;
+
+  window.app = app;
+  hint();
+  call('ready');
+})();
+</script>
+</body>
+</html>
