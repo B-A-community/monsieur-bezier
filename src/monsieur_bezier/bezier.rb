@@ -80,20 +80,27 @@ module BACommunity
         from.corner? && to.corner?
       end
 
-      # Вся цепочка одной ломаной. Стыки не дублируются.
-      def polyline(anchors, segments, closed = false)
+      # Цепочка по пролётам: массив ломаных, по одной на пролёт между
+      # соседними узлами. Соседние пролёты делят концевую точку — SketchUp
+      # склеит их в одну вершину сам.
+      def spans(anchors, segments, closed = false)
         return [] if anchors.length < 2
         list = closed ? anchors + [anchors.first] : anchors
-        points = [list.first.point]
-        list.each_cons(2) do |from, to|
+        list.each_cons(2).map do |from, to|
           if straight_span?(from, to)
-            points << to.point
+            [from.point, to.point]
           else
             p0, p1, p2, p3 = span_controls(from, to)
-            points.concat(span_points(p0, p1, p2, p3, segments).drop(1))
+            span_points(p0, p1, p2, p3, segments)
           end
         end
-        points
+      end
+
+      # Вся цепочка одной ломаной. Стыки не дублируются.
+      def polyline(anchors, segments, closed = false)
+        parts = spans(anchors, segments, closed)
+        return [] if parts.empty?
+        parts.first + parts.drop(1).flat_map { |part| part.drop(1) }
       end
 
     end # module Bezier

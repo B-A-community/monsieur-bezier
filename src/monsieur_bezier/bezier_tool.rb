@@ -206,8 +206,8 @@ module BACommunity
       # --- результат ---------------------------------------------------------
 
       def finish(view, closed)
-        points = Bezier.polyline(@anchors, @segments, closed)
-        if points.length < 2
+        spans = Bezier.spans(@anchors, @segments, closed)
+        if spans.empty?
           @anchors.clear
           view.invalidate
           return
@@ -216,9 +216,18 @@ module BACommunity
         model = Sketchup.active_model
         model.start_operation('Кривая Безье', true)
         begin
-          # add_curve делает связную кривую, а не россыпь рёбер: её можно
-          # выделить одним кликом и скормить Follow Me.
-          model.active_entities.add_curve(points)
+          # Каждый пролёт между узлами — своя кривая (add_curve), а не одна
+          # на всю цепочку: так пролёт выделяется одним кликом и правится
+          # отдельно, а вся цепочка по-прежнему берётся тройным кликом.
+          # Прямой пролёт между двумя угловыми узлами — обычное ребро.
+          entities = model.active_entities
+          spans.each do |points|
+            if points.length == 2
+              entities.add_line(points[0], points[1])
+            else
+              entities.add_curve(points)
+            end
+          end
           model.commit_operation
         rescue StandardError
           model.abort_operation
