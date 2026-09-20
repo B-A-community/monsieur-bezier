@@ -23,7 +23,7 @@ module BACommunity
   module MonsieurBezier
 
     EXTENSION_NAME = 'Monsieur Bézier'.freeze
-    VERSION        = '0.2'.freeze
+    VERSION        = '0.3'.freeze
 
     loader = SketchupExtension.new(EXTENSION_NAME, File.join('monsieur_bezier', 'main.rb'))
     loader.copyright   = 'Copyright 2026 B&A community, Apache License 2.0'

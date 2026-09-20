@@ -39,13 +39,15 @@ module BACommunity
           scrollable:      false,
           resizable:       true,
           width:           500,
-          height:          510,
+          height:          575,
           min_width:       460,
-          min_height:      480,
+          min_height:      540,
           style:           UI::HtmlDialog::STYLE_DIALOG
         )
         @dialog.set_file(HTML_FILE)
         attach(@dialog)
+        # Закрыли окно — превью во вьюпорте больше нечем управлять, убираем.
+        @dialog.set_on_closed { ChamferPreview.stop }
         @dialog.show
         @dialog
       end
@@ -54,8 +56,13 @@ module BACommunity
         dialog.add_action_callback('ready') { |_ctx| push }
         dialog.add_action_callback('close') { |_ctx| dialog.close }
         dialog.add_action_callback('refresh') { |_ctx| push }
+        dialog.add_action_callback('stop') { |_ctx| ChamferPreview.stop }
         dialog.add_action_callback('preview') do |_ctx, size, segments, mode|
           run_preview(size.to_f, segments.to_i, mode.to_s.to_sym)
+        end
+        # Живое превью со слайдеров: то же самое, но без отчёта на каждый тик.
+        dialog.add_action_callback('live') do |_ctx, size, segments, mode|
+          run_preview(size.to_f, segments.to_i, mode.to_s.to_sym, quiet: true)
         end
         dialog.add_action_callback('apply') do |_ctx, size, segments, mode|
           run_apply(size.to_f, segments.to_i, mode.to_s.to_sym)
@@ -119,14 +126,16 @@ module BACommunity
         edges
       end
 
-      def self.run_preview(size, segments, mode)
+      def self.run_preview(size, segments, mode, quiet: false)
         edges = gather(size, segments)
         return if edges.nil?
         plan = Chamfer.plan(edges, size.mm, segments, mode)
-        ChamferPreview.start(Chamfer.preview_lines(plan))
+        ChamferPreview.show(Chamfer.preview_lines(plan))
+        return if quiet && plan.notes.empty?
         say("Показано: рёбер #{plan.infos.length}, узлов со сшивкой #{plan.patches.length}. " \
-            "#{notes_text(plan.notes)}Esc — убрать превью.")
+            "#{notes_text(plan.notes)}Enter — применить, Esc — убрать превью.")
       rescue Chamfer::Error => e
+        ChamferPreview.stop
         say(e.message, 'warn')
       end
 
@@ -150,30 +159,53 @@ module BACommunity
     end # module ChamferPanel
 
     # Превью во вьюпорте. Ничего не строит — только рисует то, что посчитал
-    # план, поэтому его можно гонять сколько угодно и без отмены.
+    # план, поэтому его можно гонять сколько угодно и без отмены. Пока
+    # крутят слайдеры, план пересчитывается на каждый тик и инструмент просто
+    # подменяет себе линии — без переактивации, иначе SketchUp моргал бы
+    # статусной строкой и курсором.
     class ChamferPreview
 
       # Тот же изумруд, что в панели: инструмент узнаётся по цвету.
       COLOR = Sketchup::Color.new(63, 224, 160)
 
-      def self.start(lines)
-        Sketchup.active_model.select_tool(new(lines))
+      @current = nil
+
+      def self.show(lines)
+        if @current&.active?
+          @current.lines = lines
+          Sketchup.active_model.active_view.invalidate
+        else
+          @current = new(lines)
+          Sketchup.active_model.select_tool(@current)
+        end
       end
 
+      # Снимаем только собственный инструмент: если пользователь уже
+      # переключился на что-то своё, трогать его выбор нельзя.
       def self.stop
+        return unless @current&.active?
         Sketchup.active_model.select_tool(nil)
       end
 
+      attr_accessor :lines
+
       def initialize(lines)
         @lines = lines
+        @active = false
+      end
+
+      def active?
+        @active
       end
 
       def activate
-        Sketchup.status_text = 'Превью фаски. Esc — убрать.'
+        @active = true
+        Sketchup.status_text = 'Превью фаски. Enter в окне — применить, Esc — убрать.'
         Sketchup.active_model.active_view.invalidate
       end
 
       def deactivate(view)
+        @active = false
         Sketchup.status_text = ''
         view.invalidate
       end

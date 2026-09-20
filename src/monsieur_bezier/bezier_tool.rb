@@ -20,11 +20,14 @@ module BACommunity
     # Перо. Ведёт себя как в векторных редакторах:
     #   клик              — угловой узел, пролёт до него прямой;
     #   клик с протяжкой  — гладкий узел, тянем ручку;
-    #   Backspace         — убрать последний узел;
+    #   Esc               — шаг назад: убрать последний узел (как у «Линии»);
     #   Enter / двойной клик — закончить;
     #   клик по первому узлу — замкнуть;
-    #   Esc               — бросить незаконченное;
-    #   число в поле ввода — сегментов на пролёт.
+    #   число в поле ввода + Enter — сегментов на пролёт.
+    #
+    # Клавиши намеренно не перехватываются через onKeyDown: Enter и Backspace
+    # нужны полю ввода. SketchUp сам разводит их — при пустом поле Enter
+    # приходит в onReturn, при набранном числе — в onUserText.
     class BezierTool
 
       CURVE_COLOR  = Sketchup::Color.new(63, 224, 160)
@@ -63,21 +66,36 @@ module BACommunity
         view.invalidate
       end
 
-      def onCancel(_reason, view)
-        @anchors.clear
+      # Esc (reason 0) — шаг назад, по узлу за нажатие. Любая другая причина
+      # (смена инструмента, отмена в модели) — бросаем всё.
+      def onCancel(reason, view)
+        if reason == 0 && !@anchors.empty?
+          @anchors.pop
+        else
+          @anchors.clear
+        end
         @dragging = false
         update_status
         view.invalidate
+      end
+
+      # Enter при пустом поле ввода: закончить кривую.
+      def onReturn(view)
+        finish(view, false)
       end
 
       def enableVCB?
         true
       end
 
+      # Неверное число — не модалка (она блокирует и SketchUp, и мост),
+      # а звук и строка состояния: опечатка того не стоит.
       def onUserText(text, view)
         value = text.to_i
         if value < 1 || value > 200
-          UI.messagebox('Сегментов на пролёт: от 1 до 200.')
+          UI.beep
+          Sketchup.status_text = "Сегментов на пролёт: от 1 до 200, а не «#{text}»."
+          return
         else
           @segments = value
           Settings.write('bezier_segments', value)
@@ -123,21 +141,6 @@ module BACommunity
         # Второй клик двойного уже добавил лишний узел — убираем его.
         @anchors.pop if @anchors.length > 1
         finish(view, false)
-      end
-
-      def onKeyDown(key, _repeat, _flags, view)
-        case key
-        when 13 # Enter
-          finish(view, false)
-          true
-        when 8 # Backspace
-          @anchors.pop
-          update_status
-          view.invalidate
-          true
-        else
-          false
-        end
       end
 
       # --- отрисовка ---------------------------------------------------------
@@ -243,7 +246,7 @@ module BACommunity
       def update_status
         Sketchup.status_text =
           "Безье: клик — угол, клик с протяжкой — гладкий узел, Enter — закончить, " \
-          "Backspace — назад. Сегментов на пролёт: #{@segments} (введите число, чтобы изменить)."
+          "Esc — шаг назад. Сегментов на пролёт: #{@segments} (наберите число и Enter)."
         Sketchup.vcb_label = 'Сегментов'
         Sketchup.vcb_value = @segments.to_s
       end

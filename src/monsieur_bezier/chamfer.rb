@@ -67,12 +67,30 @@ module BACommunity
         patches = []
         by_vertex.each { |vertex, incident| plan_vertex(vertex, incident, cuts, patches) }
 
+        check_strips(infos, cuts)
+
         faces = by_vertex.keys.flat_map(&:faces).uniq
         loops = {}
         faces.each { |face| loops[face] = plan_face(face, infos, by_vertex, cuts) }
 
         Plan.new(infos, cuts, patches, loops, faces,
                  by_vertex.keys.flat_map(&:edges).uniq, notes)
+      end
+
+      # Слишком большой размер сначала выворачивает полосу: торцы в вершинах
+      # заходят друг за друга, и рельсы идут против ребра. Ловим это здесь,
+      # пока модель не тронута, — иначе превью нарисует кашу, а «Применить»
+      # её ещё и построит.
+      def self.check_strips(infos, cuts)
+        infos.each_value do |info|
+          head = cuts[[info.edge, info.edge.start]]
+          tail = cuts[[info.edge, info.edge.end]]
+          next if head.nil? || tail.nil?
+          head.each_index do |i|
+            next if (tail[i] - head[i]).dot(info.dir) > GeomUtils::TOL
+            raise Error, 'размер больше длины ребра — уменьшите размер'
+          end
+        end
       end
 
       # Ломаные для превью во вьюпорте: торцы полос, рёбра сегментов и дуги
@@ -204,12 +222,32 @@ module BACommunity
 
       def self.plan_loop(face, loop, infos, by_vertex, cuts)
         edges = loop.edges
-        edges.each_index.flat_map do |i|
+        vertices = []
+        corners = edges.each_index.map do |i|
           prev_edge = edges[i]
           next_edge = edges[(i + 1) % edges.length]
           vertex = (prev_edge.vertices & next_edge.vertices).first
           raise Error, 'петля грани разорвана' if vertex.nil?
+          vertices << vertex
           corner(face, vertex, prev_edge, next_edge, infos, by_vertex, cuts)
+        end
+        check_loop(vertices, corners)
+        corners.flatten(1)
+      end
+
+      # Слишком большой отступ съедает грань: новая кромка идёт против
+      # прежней, и петля выворачивается наизнанку. Сравниваем направление
+      # каждого нового отрезка с исходным ребром между теми же вершинами.
+      def self.check_loop(vertices, corners)
+        n = vertices.length
+        n.times do |i|
+          from = vertices[i].position
+          to   = vertices[(i + 1) % n].position
+          orig = to - from
+          fresh = corners[(i + 1) % n].first - corners[i].last
+          next if orig.length.to_f < GeomUtils::TOL
+          next if fresh.dot(orig) > GeomUtils::TOL * orig.length.to_f
+          raise Error, 'размер слишком велик для грани — уменьшите размер'
         end
       end
 

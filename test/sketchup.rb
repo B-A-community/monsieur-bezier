@@ -140,4 +140,5 @@ GL_LINE_STRIP = 3
 
 module UI
   def self.messagebox(*_) = nil
+  def self.beep = nil
 end
