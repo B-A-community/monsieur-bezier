@@ -19,12 +19,7 @@ module BACommunity
 
     HERE = File.dirname(__FILE__).freeze
 
-    # Порядок важен: geom_utils нужен математике фаски, та — движку.
     require File.join(HERE, 'settings.rb')
-    require File.join(HERE, 'geom_utils.rb')
-    require File.join(HERE, 'chamfer_math.rb')
-    require File.join(HERE, 'chamfer.rb')
-    require File.join(HERE, 'chamfer_panel.rb')
     require File.join(HERE, 'bezier.rb')
     require File.join(HERE, 'bezier_tool.rb')
     require File.join(HERE, 'toolbar.rb')

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Monsieur Bézier — гладкая геометрия для SketchUp: фаска, скругление, кривые.
+# Monsieur Bézier — перо для кривых Безье в SketchUp.
 # Точка входа: регистрирует расширение, реальный код грузится из
 # monsieur_bezier/main.rb.
 
@@ -23,14 +23,13 @@ module BACommunity
   module MonsieurBezier
 
     EXTENSION_NAME = 'Monsieur Bézier'.freeze
-    VERSION        = '0.3'.freeze
+    VERSION        = '0.4'.freeze
 
     loader = SketchupExtension.new(EXTENSION_NAME, File.join('monsieur_bezier', 'main.rb'))
     loader.copyright   = 'Copyright 2026 B&A community, Apache License 2.0'
     loader.creator     = 'B&A community — maksarsanjeev, Royalb21'
     loader.version     = VERSION
-    loader.description = 'Фаска и скругление рёбер с честной сшивкой углов, ' \
-                         'и перо для кривых Безье.'
+    loader.description = 'Перо для кривых Безье: гладкие и угловые узлы, каждый пролёт — отдельная кривая.'
     Sketchup.register_extension(loader, true)
 
   end # module MonsieurBezier

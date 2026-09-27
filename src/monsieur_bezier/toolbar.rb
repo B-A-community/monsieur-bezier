@@ -15,7 +15,7 @@
 require 'sketchup.rb'
 
 # Оформление плагина: панель инструментов и меню.
-# Считает chamfer.rb, рисует bezier_tool.rb, разговаривает chamfer_panel.rb.
+# Математика кривой — в bezier.rb, само перо — в bezier_tool.rb.
 module BACommunity
   module MonsieurBezier
 
@@ -25,17 +25,10 @@ module BACommunity
 
     BUTTONS = [
       {
-        icon:    'chamfer',
-        title:   'Фаска и скругление',
-        tooltip: 'Фаска и скругление рёбер',
-        status:  'Выделите рёбра (или группу целиком): размер, число сегментов, 1 сегмент — прямая фаска',
-        action:  -> { ChamferPanel.show }
-      },
-      {
         icon:    'bezier',
         title:   'Кривая Безье',
         tooltip: 'Нарисовать кривую Безье',
-        status:  'Клик — угловой узел, клик с протяжкой — гладкий; Enter — закончить, Esc — бросить',
+        status:  'Клик — угловой узел, клик с протяжкой — гладкий; Enter — закончить, Esc — шаг назад',
         action:  -> { Sketchup.active_model.select_tool(BezierTool.new) }
       }
     ].freeze
