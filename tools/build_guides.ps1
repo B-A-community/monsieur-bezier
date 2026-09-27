@@ -28,7 +28,7 @@ foreach ($suffix in @('rus', 'eng')) {
   # Start-Process, а не "&": браузер пишет «bytes written» в stderr, и
   # PowerShell 5.1 при ErrorActionPreference=Stop принимает это за ошибку.
   $log = Join-Path $env:TEMP "monsieur_bezier_pdf.log"
-  Start-Process -FilePath $browser -Wait -NoNewWindow -RedirectStandardError $log -ArgumentList @(
+  Start-Process -FilePath $browser -Wait -WindowStyle Hidden -RedirectStandardError $log -ArgumentList @(
     '--headless', '--disable-gpu', '--no-pdf-header-footer',
     "--user-data-dir=`"$profile`"", "--print-to-pdf=`"$pdf`"", "`"$url`"")
   # Браузер может вернуться раньше, чем файл дописан, — ждём появления.

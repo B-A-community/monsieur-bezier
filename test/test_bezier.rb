@@ -115,4 +115,79 @@ class BezierToolFinishTest < Minitest::Test
     assert_empty log
     assert_empty @model.ops, 'без пролётов операция даже не открывается'
   end
+
+  def test_repeated_corner_does_not_create_an_empty_operation
+    assert_empty run_finish([corner(10, 10), corner(10, 10)])
+    assert_empty @model.ops
+  end
+
+  def test_tiny_span_does_not_send_coincident_points_to_sketchup
+    assert_empty run_finish([corner(0, 0), corner(0.0001, 0)])
+    assert_empty @model.ops
+  end
+
+  def test_empty_finish_resets_drag_and_close_state
+    @tool.instance_variable_set(:@dragging, true)
+    @tool.instance_variable_set(:@closing, true)
+    run_finish([corner(0, 0)])
+    refute @tool.instance_variable_get(:@dragging)
+    refute @tool.instance_variable_get(:@closing)
+  end
+
+  def test_segment_input_rejects_partial_numbers_and_preserves_preference
+    view = Sketchup::FakeView.new
+    @tool.onUserText('24', view)
+    %w[12abc 1.5 1e2 -1 0 201].push('').each do |text|
+      @tool.onUserText(text, view)
+      assert_equal 24, @tool.instance_variable_get(:@segments), text
+      assert_equal 24, M::Settings.read('bezier_segments', 12), text
+    end
+  ensure
+    M::Settings.write('bezier_segments', 12)
+  end
+
+  def test_segment_limits_and_whitespace
+    ['1', '200', ' 12 '].each do |text|
+      @tool.onUserText(text, Sketchup::FakeView.new)
+      assert_equal text.to_i, @tool.instance_variable_get(:@segments)
+    end
+  end
+
+  def test_invalid_saved_segment_count_uses_default
+    [0, -10, 201].each do |value|
+      M::Settings.write('bezier_segments', value)
+      assert_equal 12, M::BezierTool.new.instance_variable_get(:@segments)
+    end
+  ensure
+    M::Settings.write('bezier_segments', 12)
+  end
+
+  def test_closing_preview_uses_the_first_nodes_incoming_handle
+    chain = [smooth(0, 0, 30, 40), corner(90, 0), corner(90, 90)]
+    @tool.instance_variable_set(:@anchors, chain)
+    @tool.instance_variable_set(:@closing, true)
+    assert_equal M::Bezier.polyline(chain, 12, true).map(&:to_a),
+                 @tool.send(:preview_points).map(&:to_a)
+  end
+
+  def test_escape_removes_one_node_and_clears_closing_state
+    @tool.instance_variable_set(:@anchors, [corner(0, 0), corner(20, 20)])
+    @tool.instance_variable_set(:@closing, true)
+    @tool.onCancel(0, Sketchup::FakeView.new)
+    assert_equal 1, @tool.instance_variable_get(:@anchors).length
+    refute @tool.instance_variable_get(:@closing)
+  end
+
+  def test_double_click_keeps_the_endpoint_from_the_first_mouse_down
+    view = Sketchup::FakeView.new
+    # Native Windows SketchUp sequence: Down, Up, Down, Up, DoubleClick, Up.
+    @tool.onLButtonDown(0, 0, 0, view)
+    @tool.onLButtonUp(0, 0, 0, view)
+    @tool.onLButtonDown(0, 100, 0, view)
+    @tool.onLButtonUp(0, 100, 0, view)
+    @tool.onLButtonDoubleClick(0, 100, 0, view)
+    @tool.onLButtonUp(0, 100, 0, view)
+    assert_equal 1, @model.active_entities.log.length
+    assert_equal [100.0, 0.0, 0.0], @model.active_entities.log.first.last.last.to_a
+  end
 end

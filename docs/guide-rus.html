@@ -25,7 +25,7 @@
   .cap { color: #666; font-size: 9pt; margin-top: 4px; }
   .note { background: #f5f5f4; border: 1px solid #ddd; border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 10pt; }
   .note b { color: #2b6cb0; }
-  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ddd; color: #888; font-size: 9pt; display: flex; justify-content: space-between; }
+  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ddd; color: #888; font-size: 9pt; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
 </style>
 </head>
 <body>
@@ -56,9 +56,9 @@
 <h2><span class="n">2</span>Рисование кривой</h2>
 <p>Кнопка на панели или <b>Extensions → Monsieur Bézier → Кривая Безье</b>.</p>
 <table>
-  <tr><td>клик</td><td>угловой узел — пролёт до него прямой</td></tr>
+  <tr><td>клик</td><td>угловой узел без ручек</td></tr>
   <tr><td>клик с протяжкой</td><td>гладкий узел — тянете ручку, вторая зеркалится сама</td></tr>
-  <tr><td>клик по первому узлу</td><td>замкнуть кривую</td></tr>
+  <tr><td>клик по первому узлу</td><td>замкнуть кривую (от трёх узлов)</td></tr>
   <tr><td><kbd>Enter</kbd> или двойной клик</td><td>закончить</td></tr>
   <tr><td><kbd>Esc</kbd></td><td>шаг назад — убрать последний узел</td></tr>
   <tr><td>число + <kbd>Enter</kbd></td><td>сегментов на пролёт (от 1 до 200, по умолчанию 12) — в поле «Сегментов» в правом нижнем углу</td></tr>

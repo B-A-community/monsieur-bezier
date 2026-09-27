@@ -34,9 +34,10 @@ function Add-Entry($zip, $file, $name) {
 
 foreach ($l in $langs) {
   $base  = "monsieur_bezier-{0}-{1}" -f $version, $suffix[$l]
-  $stage = Join-Path $env:TEMP ("monsieur_bezier_build_" + $l)
-  Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+  $stage = Join-Path $dist ("stage-" + [guid]::NewGuid().ToString('N'))
   Copy-Item $src $stage -Recurse
+  Copy-Item (Join-Path $PSScriptRoot 'LICENSE') (Join-Path $stage 'monsieur_bezier/LICENSE')
+  Copy-Item (Join-Path $PSScriptRoot 'AUTHORS') (Join-Path $stage 'monsieur_bezier/AUTHORS')
 
   foreach ($f in @('monsieur_bezier\lang.rb', 'monsieur_bezier\html\i18n.js')) {
     $p = Join-Path $stage $f
@@ -57,7 +58,12 @@ foreach ($l in $langs) {
   } finally {
     $zip.Dispose()
   }
-  Remove-Item $stage -Recurse -Force
+  $resolvedStage = (Resolve-Path -LiteralPath $stage).Path
+  $resolvedDist = (Resolve-Path -LiteralPath $dist).Path
+  if (-not $resolvedStage.StartsWith($resolvedDist + [IO.Path]::DirectorySeparatorChar)) {
+    throw "Build staging path is outside dist: $resolvedStage"
+  }
+  Remove-Item -LiteralPath $resolvedStage -Recurse -Force
   Write-Host "Готово: $rbz"
 
   # 2. Архив для релиза: плагин + инструкция

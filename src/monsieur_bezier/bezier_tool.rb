@@ -18,7 +18,7 @@ module BACommunity
   module MonsieurBezier
 
     # Перо. Ведёт себя как в векторных редакторах:
-    #   клик              — угловой узел, пролёт до него прямой;
+    #   клик              — угловой узел без ручек;
     #   клик с протяжкой  — гладкий узел, тянем ручку;
     #   Esc               — шаг назад: убрать последний узел (как у «Линии»);
     #   Enter / двойной клик — закончить;
@@ -41,6 +41,7 @@ module BACommunity
       def initialize
         @anchors  = []
         @segments = Settings.read('bezier_segments', 12).to_i
+        @segments = 12 unless (1..200).cover?(@segments)
         @dragging = false
         @closing  = false
         @ip       = Sketchup::InputPoint.new
@@ -51,6 +52,7 @@ module BACommunity
       def activate
         @anchors.clear
         @dragging = false
+        @closing = false
         Sketchup.active_model.active_view.invalidate
         update_status
       end
@@ -78,6 +80,7 @@ module BACommunity
           @anchors.clear
         end
         @dragging = false
+        @closing = false
         update_status
         view.invalidate
       end
@@ -94,8 +97,9 @@ module BACommunity
       # Неверное число — не модалка (она блокирует и SketchUp, и мост),
       # а звук и строка состояния: опечатка того не стоит.
       def onUserText(text, view)
-        value = text.to_i
-        if value < 1 || value > 200
+        input = text.strip
+        value = input.to_i
+        if !input.match?(/\A[0-9]+\z/) || !(1..200).cover?(value)
           UI.beep
           Sketchup.status_text = MonsieurBezier.t(:bad_segments, text)
           return
@@ -115,7 +119,7 @@ module BACommunity
           @anchors.last.pull_to(@ip.position) if @ip.valid?
         else
           @ip.pick(view, x, y)
-          @closing = near_first?(view, x, y)
+          @closing = @anchors.length > 2 && near_first?(view, x, y)
         end
         view.invalidate
       end
@@ -141,8 +145,8 @@ module BACommunity
       end
 
       def onLButtonDoubleClick(_flags, _x, _y, view)
-        # Второй клик двойного уже добавил лишний узел — убираем его.
-        @anchors.pop if @anchors.length > 1
+        # SketchUp delivers Down, Up, DoubleClick, Up: the double-click
+        # replaces the second Down. The last anchor is the intended endpoint.
         finish(view, false)
       end
 
@@ -180,6 +184,7 @@ module BACommunity
       # курсор — это ручка, а не следующий узел, и лишнего пролёта нет.
       def preview_points
         return [] if @anchors.empty?
+        return Bezier.polyline(@anchors, @segments, true) if @closing && !@dragging
         anchors = @anchors
         if !@dragging && @ip.valid? && !@anchors.empty?
           anchors = @anchors + [Bezier::Anchor.new(@ip.position, nil, nil)]
@@ -213,8 +218,19 @@ module BACommunity
 
       def finish(view, closed)
         spans = Bezier.spans(@anchors, @segments, closed)
+        # SketchUp merges points within its geometric tolerance. Do not send
+        # collapsed edges to add_curve (e.g. repeated clicks or tiny spans).
+        spans = spans.filter_map do |points|
+          clean = points.each_with_object([]) do |point, result|
+            result << point if result.empty? || result.last.distance(point).to_f >= 0.001
+          end
+          clean if clean.length > 1
+        end
         if spans.empty?
           @anchors.clear
+          @dragging = false
+          @closing = false
+          update_status
           view.invalidate
           return
         end
@@ -242,6 +258,7 @@ module BACommunity
 
         @anchors.clear
         @dragging = false
+        @closing = false
         update_status
         view.invalidate
       end

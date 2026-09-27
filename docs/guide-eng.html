@@ -25,7 +25,7 @@
   .cap { color: #666; font-size: 9pt; margin-top: 4px; }
   .note { background: #f5f5f4; border: 1px solid #ddd; border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 10pt; }
   .note b { color: #2b6cb0; }
-  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ddd; color: #888; font-size: 9pt; display: flex; justify-content: space-between; }
+  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ddd; color: #888; font-size: 9pt; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
 </style>
 </head>
 <body>
@@ -56,9 +56,9 @@ You get the “Monsieur Bézier” toolbar (one button) and the <b>Extensions �
 <h2><span class="n">2</span>Drawing a curve</h2>
 <p>The toolbar button or <b>Extensions → Monsieur Bézier → Bézier curve</b>.</p>
 <table>
-  <tr><td>click</td><td>corner node — the span into it is straight</td></tr>
+  <tr><td>click</td><td>corner node without handles</td></tr>
   <tr><td>click and drag</td><td>smooth node — you pull a handle, the other one mirrors it</td></tr>
-  <tr><td>click the first node</td><td>close the curve</td></tr>
+  <tr><td>click the first node</td><td>close the curve (at least three nodes)</td></tr>
   <tr><td><kbd>Enter</kbd> or double-click</td><td>finish</td></tr>
   <tr><td><kbd>Esc</kbd></td><td>step back — remove the last node</td></tr>
   <tr><td>number + <kbd>Enter</kbd></td><td>segments per span (1 to 200, default 12) — in the “Segments” box, bottom right</td></tr>

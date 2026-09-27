@@ -30,9 +30,9 @@ like the pen in vector editors:
 
 | Action | What happens |
 |---|---|
-| click | corner node, the span into it is straight |
+| click | corner node without handles |
 | click and drag | smooth node, you pull a handle (the other one mirrors it) |
-| click the first node | close the curve |
+| click the first node | close the curve (at least three nodes) |
 | Enter or double-click | finish |
 | Esc | step back: remove the last node (like the Line tool) |
 | number in the input box + Enter | segments per span (1–200, default 12) |

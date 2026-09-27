@@ -34,9 +34,12 @@ module BACommunity
           preferences_key: 'BACommunity_MonsieurBezier_About',
           width:           420,
           height:          300,
+          use_content_size: true,
           resizable:       false,
           style:           UI::HtmlDialog::STYLE_DIALOG
         )
+        # Override dimensions saved by older builds that included the title bar.
+        @dialog.set_content_size(420, 300)
         @dialog.set_file(HTML_FILE)
         @dialog.add_action_callback('ready') do |_ctx|
           @dialog.execute_script("init(#{JSON.generate(version: version)})")
