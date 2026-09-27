@@ -30,8 +30,11 @@ module BACommunity
     # приходит в onReturn, при набранном числе — в onUserText.
     class BezierTool
 
-      CURVE_COLOR  = Sketchup::Color.new(63, 224, 160)
-      HANDLE_COLOR = Sketchup::Color.new(180, 60, 60)
+      # Цвета — дизайн-код B&A: кривая и узлы акцентом #2B6CB0, ручки —
+      # тёмным «железом» #3B3B38, как на иконке. На светлом фоне вьюпорта
+      # SketchUp оба читаются.
+      CURVE_COLOR  = Sketchup::Color.new(43, 108, 176)
+      HANDLE_COLOR = Sketchup::Color.new(59, 59, 56)
       ANCHOR_SIZE  = 6
       CLOSE_PIXELS = 10
 
@@ -94,7 +97,7 @@ module BACommunity
         value = text.to_i
         if value < 1 || value > 200
           UI.beep
-          Sketchup.status_text = "Сегментов на пролёт: от 1 до 200, а не «#{text}»."
+          Sketchup.status_text = MonsieurBezier.t(:bad_segments, text)
           return
         else
           @segments = value
@@ -217,7 +220,7 @@ module BACommunity
         end
 
         model = Sketchup.active_model
-        model.start_operation('Кривая Безье', true)
+        model.start_operation(MonsieurBezier.t(:op_curve), true)
         begin
           # Каждый пролёт между узлами — своя кривая (add_curve), а не одна
           # на всю цепочку: так пролёт выделяется одним кликом и правится
@@ -244,10 +247,8 @@ module BACommunity
       end
 
       def update_status
-        Sketchup.status_text =
-          "Безье: клик — угол, клик с протяжкой — гладкий узел, Enter — закончить, " \
-          "Esc — шаг назад. Сегментов на пролёт: #{@segments} (наберите число и Enter)."
-        Sketchup.vcb_label = 'Сегментов'
+        Sketchup.status_text = MonsieurBezier.t(:status, @segments)
+        Sketchup.vcb_label = MonsieurBezier.t(:vcb_label)
         Sketchup.vcb_value = @segments.to_s
       end
 

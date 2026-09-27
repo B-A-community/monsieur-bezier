@@ -19,9 +19,11 @@ module BACommunity
 
     HERE = File.dirname(__FILE__).freeze
 
+    require File.join(HERE, 'lang.rb')
     require File.join(HERE, 'settings.rb')
     require File.join(HERE, 'bezier.rb')
     require File.join(HERE, 'bezier_tool.rb')
+    require File.join(HERE, 'about.rb')
     require File.join(HERE, 'toolbar.rb')
 
     unless file_loaded?(__FILE__)

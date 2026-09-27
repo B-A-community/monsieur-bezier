@@ -23,12 +23,13 @@ module BACommunity
     MENU_NAME    = 'Monsieur Bézier'.freeze
     ICONS_DIR    = File.join(File.dirname(__FILE__), 'icons').freeze
 
+    # Подписи — из lang.rb: сборка подменяет язык, код кнопок один на оба.
     BUTTONS = [
       {
         icon:    'bezier',
-        title:   'Кривая Безье',
-        tooltip: 'Нарисовать кривую Безье',
-        status:  'Клик — угловой узел, клик с протяжкой — гладкий; Enter — закончить, Esc — шаг назад',
+        title:   MonsieurBezier.t(:cmd_bezier),
+        tooltip: MonsieurBezier.t(:tip_bezier),
+        status:  MonsieurBezier.t(:bar_bezier),
         action:  -> { Sketchup.active_model.select_tool(BezierTool.new) }
       }
     ].freeze
@@ -72,9 +73,13 @@ module BACommunity
       toolbar
     end
 
+    # «О плагине…» — только в меню, под разделителем, как в RALNCS:
+    # на панели инструментов место для того, чем рисуют.
     def self.create_menu
       menu = UI.menu('Extensions').add_submenu(MENU_NAME)
       BUTTONS.each { |spec| menu.add_item(spec[:title]) { spec[:action].call } }
+      menu.add_separator
+      menu.add_item(MonsieurBezier.t(:menu_about)) { About.show }
       menu
     end
 

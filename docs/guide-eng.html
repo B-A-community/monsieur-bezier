@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monsieur Bézier 1.0 — quick guide</title>
+<style>
+  @page { size: A4; margin: 16mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font: 11pt/1.45 "Segoe UI", system-ui, sans-serif; color: #1c1c1c; }
+  header { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 14px; }
+  header svg { width: 44px; height: 44px; flex: none; }
+  h1 { font-size: 20pt; font-weight: 700; line-height: 1.1; }
+  .sub { color: #666; font-size: 10pt; margin-top: 2px; }
+  h2 { font-size: 12.5pt; font-weight: 700; margin: 14px 0 6px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { display: inline-block; width: 22px; height: 22px; border-radius: 11px; background: #2b6cb0; color: #fff; font-size: 10pt; text-align: center; line-height: 22px; }
+  p, li { margin-bottom: 4px; }
+  ol, ul { padding-left: 20px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+  kbd, .btn { font: inherit; font-size: 9.5pt; padding: 1px 7px; border: 1px solid #bbb; border-radius: 5px; background: #fff; white-space: nowrap; }
+  table { border-collapse: collapse; width: 100%; margin-top: 4px; }
+  td { padding: 4px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+  td:first-child { white-space: nowrap; width: 38%; }
+  .fig { margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; background: #fafaf9; padding: 8px 10px 6px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .cap { color: #666; font-size: 9pt; margin-top: 4px; }
+  .note { background: #f5f5f4; border: 1px solid #ddd; border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 10pt; }
+  .note b { color: #2b6cb0; }
+  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ddd; color: #888; font-size: 9pt; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 19 L6.6 9.6" fill="none" stroke="#3B3B38" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M19 15 L15.6 5.8" fill="none" stroke="#3B3B38" stroke-width="1.1" stroke-linecap="round"/>
+    <circle cx="6.6" cy="9.6" r="1.3" fill="#3B3B38"/>
+    <circle cx="15.6" cy="5.8" r="1.3" fill="#3B3B38"/>
+    <path d="M5 19 C6.6 9.6 15.6 5.8 19 15" fill="none" stroke="#2B6CB0" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="3.1" y="17.1" width="3.8" height="3.8" rx="0.85" fill="#FFFFFF" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="17.1" y="13.1" width="3.8" height="3.8" rx="0.85" fill="#FFFFFF" stroke="#3B3B38" stroke-width="1.6"/>
+    <path d="M7.2 5 C7.7 2 13.4 1.6 14 4.6 C12 5.4 9.2 5.5 7.2 5 Z" fill="#C1121F"/>
+    <rect x="10.1" y="0.9" width="1.7" height="1.9" rx="0.85" fill="#C1121F"/>
+  </svg>
+  <div>
+    <h1>Monsieur Bézier 1.0 — quick guide</h1>
+    <div class="sub">SketchUp 2024 / 2025 / 2026 extension: a Bézier pen — smooth and corner nodes, just like in vector editors</div>
+  </div>
+</header>
+
+<h2><span class="n">1</span>Installation</h2>
+<p>SketchUp → <b>Window → Extension Manager → Install Extension</b> → pick <code>monsieur_bezier-1.0-eng.rbz</code> → restart SketchUp.
+You get the “Monsieur Bézier” toolbar (one button) and the <b>Extensions → Monsieur Bézier</b> menu. If the toolbar is gone — <b>View → Toolbars → Monsieur Bézier</b>.</p>
+
+<div class="two">
+<div>
+<h2><span class="n">2</span>Drawing a curve</h2>
+<p>The toolbar button or <b>Extensions → Monsieur Bézier → Bézier curve</b>.</p>
+<table>
+  <tr><td>click</td><td>corner node — the span into it is straight</td></tr>
+  <tr><td>click and drag</td><td>smooth node — you pull a handle, the other one mirrors it</td></tr>
+  <tr><td>click the first node</td><td>close the curve</td></tr>
+  <tr><td><kbd>Enter</kbd> or double-click</td><td>finish</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>step back — remove the last node</td></tr>
+  <tr><td>number + <kbd>Enter</kbd></td><td>segments per span (1 to 200, default 12) — in the “Segments” box, bottom right</td></tr>
+</table>
+<p class="note"><b>Step back is Esc, not Backspace.</b> Backspace and Enter belong to the input box: while a number is typed there, Enter applies the number instead of finishing the curve.</p>
+</div>
+
+<div>
+<h2><span class="n">3</span>What you get</h2>
+<ul>
+  <li>Every span between two nodes is a <b>separate curve</b>: a single click selects one span, so you can edit or delete it on its own.</li>
+  <li>A <b>triple click</b> selects the whole chain — like any connected edges in SketchUp.</li>
+  <li>A span between two corner nodes is a single straight edge, with no extra points.</li>
+  <li>Spans share their end vertices, so for <b>Follow Me</b> the chain is one continuous path.</li>
+  <li>The whole curve is one operation: <kbd>Ctrl+Z</kbd> undoes it at once.</li>
+</ul>
+<div class="fig">
+  <svg viewBox="0 0 300 128" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="10">
+    <path d="M30 100 L60 32" stroke="#3B3B38" stroke-width="1"/>
+    <path d="M118 42 L182 118" stroke="#3B3B38" stroke-width="1"/>
+    <circle cx="60" cy="32" r="3" fill="#3B3B38"/><circle cx="118" cy="42" r="3" fill="#3B3B38"/><circle cx="182" cy="118" r="3" fill="#3B3B38"/>
+    <path d="M30 100 C60 32 118 42 150 80" fill="none" stroke="#2B6CB0" stroke-width="2.4"/>
+    <path d="M150 80 C182 118 225 75 225 75" fill="none" stroke="#2F855A" stroke-width="2.4"/>
+    <path d="M225 75 L275 75" fill="none" stroke="#DD8A20" stroke-width="2.4"/>
+    <rect x="25" y="95" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="145" y="75" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="220" y="70" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="270" y="70" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <text x="14" y="120" fill="#666">1</text><text x="148" y="68" fill="#666">2</text><text x="223" y="62" fill="#666">3</text><text x="273" y="62" fill="#666">4</text>
+    <text x="74" y="84" fill="#2B6CB0">span 1</text>
+    <text x="196" y="112" fill="#2F855A">span 2</text>
+    <text x="236" y="94" fill="#DD8A20">span 3</text>
+    <text x="68" y="24" fill="#666">handles</text>
+  </svg>
+  <div class="cap">Node 2 is smooth (mirrored handles), nodes 3 and 4 are corners, so span 3 is straight. Each color is a separate curve.</div>
+</div>
+</div>
+</div>
+
+<footer>
+  <span>Authors: Ruslan Tkachenko and Maksar Sanjeev · Apache 2.0 · B&amp;A community</span>
+  <span>github.com/B-A-community/monsieur-bezier</span>
+</footer>
+</body>
+</html>

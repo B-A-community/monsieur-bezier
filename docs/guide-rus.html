@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Monsieur Bézier 1.0 — краткая инструкция</title>
+<style>
+  @page { size: A4; margin: 16mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font: 11pt/1.45 "Segoe UI", system-ui, sans-serif; color: #1c1c1c; }
+  header { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 14px; }
+  header svg { width: 44px; height: 44px; flex: none; }
+  h1 { font-size: 20pt; font-weight: 700; line-height: 1.1; }
+  .sub { color: #666; font-size: 10pt; margin-top: 2px; }
+  h2 { font-size: 12.5pt; font-weight: 700; margin: 14px 0 6px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { display: inline-block; width: 22px; height: 22px; border-radius: 11px; background: #2b6cb0; color: #fff; font-size: 10pt; text-align: center; line-height: 22px; }
+  p, li { margin-bottom: 4px; }
+  ol, ul { padding-left: 20px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+  kbd, .btn { font: inherit; font-size: 9.5pt; padding: 1px 7px; border: 1px solid #bbb; border-radius: 5px; background: #fff; white-space: nowrap; }
+  table { border-collapse: collapse; width: 100%; margin-top: 4px; }
+  td { padding: 4px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+  td:first-child { white-space: nowrap; width: 38%; }
+  .fig { margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; background: #fafaf9; padding: 8px 10px 6px; }
+  .fig svg { width: 100%; height: auto; display: block; }
+  .cap { color: #666; font-size: 9pt; margin-top: 4px; }
+  .note { background: #f5f5f4; border: 1px solid #ddd; border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 10pt; }
+  .note b { color: #2b6cb0; }
+  footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #ddd; color: #888; font-size: 9pt; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 19 L6.6 9.6" fill="none" stroke="#3B3B38" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M19 15 L15.6 5.8" fill="none" stroke="#3B3B38" stroke-width="1.1" stroke-linecap="round"/>
+    <circle cx="6.6" cy="9.6" r="1.3" fill="#3B3B38"/>
+    <circle cx="15.6" cy="5.8" r="1.3" fill="#3B3B38"/>
+    <path d="M5 19 C6.6 9.6 15.6 5.8 19 15" fill="none" stroke="#2B6CB0" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="3.1" y="17.1" width="3.8" height="3.8" rx="0.85" fill="#FFFFFF" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="17.1" y="13.1" width="3.8" height="3.8" rx="0.85" fill="#FFFFFF" stroke="#3B3B38" stroke-width="1.6"/>
+    <path d="M7.2 5 C7.7 2 13.4 1.6 14 4.6 C12 5.4 9.2 5.5 7.2 5 Z" fill="#C1121F"/>
+    <rect x="10.1" y="0.9" width="1.7" height="1.9" rx="0.85" fill="#C1121F"/>
+  </svg>
+  <div>
+    <h1>Monsieur Bézier 1.0 — краткая инструкция</h1>
+    <div class="sub">Плагин SketchUp 2024 / 2025 / 2026: перо для кривых Безье — гладкие и угловые узлы, как в векторных редакторах</div>
+  </div>
+</header>
+
+<h2><span class="n">1</span>Установка</h2>
+<p>SketchUp → <b>Window → Extension Manager → Install Extension</b> → выбрать <code>monsieur_bezier-1.0-rus.rbz</code> → перезапустить SketchUp.
+Появится панель инструментов «Monsieur Bézier» (одна кнопка) и меню <b>Extensions → Monsieur Bézier</b>. Если панель пропала — <b>View → Toolbars → Monsieur Bézier</b>.</p>
+
+<div class="two">
+<div>
+<h2><span class="n">2</span>Рисование кривой</h2>
+<p>Кнопка на панели или <b>Extensions → Monsieur Bézier → Кривая Безье</b>.</p>
+<table>
+  <tr><td>клик</td><td>угловой узел — пролёт до него прямой</td></tr>
+  <tr><td>клик с протяжкой</td><td>гладкий узел — тянете ручку, вторая зеркалится сама</td></tr>
+  <tr><td>клик по первому узлу</td><td>замкнуть кривую</td></tr>
+  <tr><td><kbd>Enter</kbd> или двойной клик</td><td>закончить</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>шаг назад — убрать последний узел</td></tr>
+  <tr><td>число + <kbd>Enter</kbd></td><td>сегментов на пролёт (от 1 до 200, по умолчанию 12) — в поле «Сегментов» в правом нижнем углу</td></tr>
+</table>
+<p class="note"><b>Шаг назад — Esc, а не Backspace.</b> Backspace и Enter нужны полю ввода: пока там набрано число, Enter применяет число, а не заканчивает кривую.</p>
+</div>
+
+<div>
+<h2><span class="n">3</span>Что получается</h2>
+<ul>
+  <li>Каждый пролёт между двумя узлами — <b>отдельная кривая</b>: один клик выделяет один пролёт, его можно править или удалить отдельно.</li>
+  <li><b>Тройной клик</b> выделяет всю цепочку — как любые связанные рёбра SketchUp.</li>
+  <li>Пролёт между двумя угловыми узлами — одно прямое ребро, без лишних точек.</li>
+  <li>Стыки пролётов — общие вершины, поэтому для <b>Follow Me</b> цепочка — один непрерывный путь.</li>
+  <li>Вся кривая создаётся одной операцией: <kbd>Ctrl+Z</kbd> отменяет её целиком.</li>
+</ul>
+<div class="fig">
+  <svg viewBox="0 0 300 128" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="10">
+    <path d="M30 100 L60 32" stroke="#3B3B38" stroke-width="1"/>
+    <path d="M118 42 L182 118" stroke="#3B3B38" stroke-width="1"/>
+    <circle cx="60" cy="32" r="3" fill="#3B3B38"/><circle cx="118" cy="42" r="3" fill="#3B3B38"/><circle cx="182" cy="118" r="3" fill="#3B3B38"/>
+    <path d="M30 100 C60 32 118 42 150 80" fill="none" stroke="#2B6CB0" stroke-width="2.4"/>
+    <path d="M150 80 C182 118 225 75 225 75" fill="none" stroke="#2F855A" stroke-width="2.4"/>
+    <path d="M225 75 L275 75" fill="none" stroke="#DD8A20" stroke-width="2.4"/>
+    <rect x="25" y="95" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="145" y="75" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="220" y="70" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <rect x="270" y="70" width="10" height="10" rx="2" fill="#fff" stroke="#3B3B38" stroke-width="1.6"/>
+    <text x="14" y="120" fill="#666">1</text><text x="148" y="68" fill="#666">2</text><text x="223" y="62" fill="#666">3</text><text x="273" y="62" fill="#666">4</text>
+    <text x="74" y="84" fill="#2B6CB0">пролёт 1</text>
+    <text x="196" y="112" fill="#2F855A">пролёт 2</text>
+    <text x="236" y="94" fill="#DD8A20">пролёт 3</text>
+    <text x="68" y="24" fill="#666">ручки</text>
+  </svg>
+  <div class="cap">Узел 2 — гладкий (ручки зеркальны), узлы 3 и 4 — угловые: пролёт 3 прямой. Каждый цвет — отдельная кривая.</div>
+</div>
+</div>
+</div>
+
+<footer>
+  <span>Авторы: Ruslan Tkachenko и Maksar Sanjeev · Apache 2.0 · B&amp;A community</span>
+  <span>github.com/B-A-community/monsieur-bezier</span>
+</footer>
+</body>
+</html>

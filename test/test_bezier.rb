@@ -4,7 +4,7 @@ require 'minitest/autorun'
 require 'sketchup'
 
 SRC = File.expand_path('../src/monsieur_bezier', __dir__)
-%w[settings bezier bezier_tool].each { |f| require "#{SRC}/#{f}" }
+%w[lang settings bezier bezier_tool].each { |f| require "#{SRC}/#{f}" }
 
 M = BACommunity::MonsieurBezier
 P = Geom::Point3d
@@ -95,7 +95,7 @@ class BezierToolFinishTest < Minitest::Test
 
   def test_all_in_one_undo_step
     run_finish([corner(0, 0), smooth(50, 50, 80, 80), corner(100, 0)])
-    assert_equal [[:start, 'Кривая Безье'], [:commit]], @model.ops
+    assert_equal [[:start, M.t(:op_curve)], [:commit]], @model.ops
   end
 
   def test_closed_chain_adds_closing_span

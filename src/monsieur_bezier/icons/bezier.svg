@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-  <!-- Кривая с двумя узлами-ручками и берет: мсье Безье. -->
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M3.5 18.5 C 7 8, 15 8, 20.5 15" stroke="#4A90D9" stroke-width="1.8"/>
-    <path d="M3.5 18.5 L 8 12" stroke="#9CB3C9" stroke-width="1"/>
-    <path d="M20.5 15 L 16 10" stroke="#9CB3C9" stroke-width="1"/>
-    <rect x="1.8" y="16.8" width="3.4" height="3.4" fill="#4A90D9" stroke="#2D6FB0" stroke-width="0.9"/>
-    <rect x="18.8" y="13.3" width="3.4" height="3.4" fill="#4A90D9" stroke="#2D6FB0" stroke-width="0.9"/>
-    <path d="M8.5 6.2 C 9.5 3.2, 15.5 3.2, 16.6 6.2 L 8.5 6.2 Z" fill="#2A3038" stroke="#2A3038" stroke-width="0.8"/>
-    <path d="M16.6 5 L 18.4 3.6" stroke="#2A3038" stroke-width="1.1"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Кривая Безье: два узла с ручками и берет мсье. Дизайн-код B&A:
+       flat, 24×24, без градиентов/текста/фильтров; данные — #2B6CB0 #C1121F,
+       железо/обводки — #3B3B38, обводка 1.6, скругления rx 0.85. -->
+  <path d="M5 19 L6.6 9.6" fill="none" stroke="#3B3B38" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M19 15 L15.6 5.8" fill="none" stroke="#3B3B38" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="6.6" cy="9.6" r="1.3" fill="#3B3B38"/>
+  <circle cx="15.6" cy="5.8" r="1.3" fill="#3B3B38"/>
+  <path d="M5 19 C6.6 9.6 15.6 5.8 19 15" fill="none" stroke="#2B6CB0" stroke-width="2.2" stroke-linecap="round"/>
+  <rect x="3.1" y="17.1" width="3.8" height="3.8" rx="0.85" fill="#FFFFFF" stroke="#3B3B38" stroke-width="1.6"/>
+  <rect x="17.1" y="13.1" width="3.8" height="3.8" rx="0.85" fill="#FFFFFF" stroke="#3B3B38" stroke-width="1.6"/>
+  <path d="M7.2 5 C7.7 2 13.4 1.6 14 4.6 C12 5.4 9.2 5.5 7.2 5 Z" fill="#C1121F"/>
+  <rect x="10.1" y="0.9" width="1.7" height="1.9" rx="0.85" fill="#C1121F"/>
 </svg>
