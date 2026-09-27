@@ -50,7 +50,7 @@ operation — Ctrl+Z removes it at once.
 
 ## Compatibility
 
-Verified in live SketchUp: 2024 (24.0.484), 2025 and 2026 (26.1.256) — Windows,
+Verified in live SketchUp: 2024 (24.0.484), 2025 (25.0.660) and 2026 (26.1.256) — Windows,
 Ruby 3.2. Details in [CHANGELOG.md](CHANGELOG.md) (in Russian).
 
 ## Build
